@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pelapor Lokasi</title>
+  <style>body{font-family:system-ui;padding:12px}</style>
+</head>
+<body>
+  <h2>Pelapor Lokasi</h2>
+  <p>Halaman ini akan mengirim lokasi perangkat ke server secara berkala.</p>
+
+  <label>Device ID: <input id="deviceId" value="device-"/></label><br><br>
+  <label>Interval (detik): <input id="interval" value="10" type="number"/></label><br><br>
+  <button id="start">Mulai Kirim Lokasi</button>
+  <button id="stop" disabled>Stop</button>
+  <p id="status">Status: Idle</p>
+
+  <script>
+    let intervalId = null;
+    const status = document.getElementById('status');
+    const deviceInput = document.getElementById('deviceId');
+
+    function sendLocation(position){
+      const payload = {
+        id: deviceInput.value || ('device-' + Math.floor(Math.random()*10000)),
+        lat: position.coords.latitude,
+        lon: position.coords.longitude,
+        accuracy: position.coords.accuracy,
+        timestamp: position.timestamp,
+        meta: { userAgent: navigator.userAgent }
+      };
+
+      fetch('/api/location', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+      }).then(r=>r.json()).then(()=>{ status.textContent = 'Terakhir dikirim: ' + new Date().toLocaleTimeString(); }).catch(e=>{ status.textContent = 'Gagal kirim'; });
+    }
+
+    document.getElementById('start').onclick = () => {
+      if (!navigator.geolocation) { alert('Geolocation tidak didukung'); return; }
+      const sec = parseInt(document.getElementById('interval').value || '10', 10);
+      navigator.geolocation.getCurrentPosition(sendLocation, ()=>alert('Gagal ambil lokasi'));
+      intervalId = setInterval(()=>{ navigator.geolocation.getCurrentPosition(sendLocation, ()=>{}); }, sec*1000);
+      document.getElementById('start').disabled = true; document.getElementById('stop').disabled = false; status.textContent='Mengirim...';
+    };
+
+    document.getElementById('stop').onclick = () => {
+      clearInterval(intervalId); intervalId = null; document.getElementById('start').disabled=false; document.getElementById('stop').disabled=true; status.textContent='Stopped';
+    };
+  </script>
+</body>
+</html>
