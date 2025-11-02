@@ -1,0 +1,35 @@
+AXEL-NAYYARA — Petunjuk Deploy (Hosting)
+=======================================
+
+Isi paket:
+- server.js
+- package.json
+- /public/index.html (dashboard, dilindungi password)
+- /public/login.html (halaman login)
+- /public/client.html (pengirim lokasi)
+- /data/history.json (otomatis dibuat saat server jalan)
+
+Password dashboard: axel321
+(ubah di file server.js jika ingin ganti)
+
+Rekomendasi hosting:
+- Render (https://render.com) — mendukung Node.js secara mudah
+- Railway (https://railway.app)
+- DigitalOcean / VPS
+
+Langkah singkat (contoh di Render):
+1. Buat akun Render → New → Web Service → Connect repo atau upload ZIP
+2. Build command: npm install
+3. Start command: npm start
+4. Setelah aktif, buka:
+   - Dashboard: https://<your-domain>/index.html
+   - Client: https://<your-domain>/client.html
+
+Catatan:
+- Pastikan server dapat diakses oleh perangkat yang ingin mengirim lokasi (client.html).
+- Untuk public access yang aman, gunakan HTTPS dan jangan bagikan password.
+- Jangan gunakan ini untuk melacak orang tanpa izin.
+
+Jika mau, saya bisa bantu:
+- Buatkan repository GitHub dan deploy otomatis ke Render.
+- Tambahkan autentikasi API key untuk client yang mengirim lokasi.
