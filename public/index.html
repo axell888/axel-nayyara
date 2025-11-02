@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard Pelacakan — Axel Nayyara</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html,body,#map{height:100%;margin:0}
+    .topbar{position:absolute;z-index:1000;background:white;padding:8px;border-radius:8px;margin:8px;box-shadow:0 6px 20px rgba(0,0,0,0.1)}
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <div class="topbar">
+    <strong>Dashboard Pelacakan — Axel Nayyara</strong>
+    <button id="clear">Hapus Marker</button>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const map = L.map('map').setView([0,0],2);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
+
+    const markers = new Map();
+    const socket = io();
+
+    function upsertMarker(payload){
+      const id = payload.id || ('device-'+Math.floor(Math.random()*10000));
+      const latlng = [payload.lat, payload.lon];
+      if(markers.has(id)){
+        markers.get(id).setLatLng(latlng);
+      } else {
+        const m = L.marker(latlng).addTo(map).bindPopup(`<b>${id}</b><br/>${new Date(payload.timestamp).toLocaleString()}<br/>Acc: ${payload.accuracy} m`);
+        markers.set(id,m);
+      }
+    }
+
+    socket.on('connect', ()=>console.log('connected to socket'));
+    socket.on('location:update', payload => { upsertMarker(payload); });
+    socket.on('history', arr => { arr.forEach(upsertMarker); });
+
+    document.getElementById('clear').onclick = ()=>{ markers.forEach(m=>map.removeLayer(m)); markers.clear(); };
+  </script>
+</body>
+</html>
