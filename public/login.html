@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Login Dashboard</title>
+<style>body{font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#f3f4f6} .card{background:white;padding:20px;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,0.08);width:320px}</style>
+</head>
+<body>
+  <div class="card">
+    <h3>Login Dashboard</h3>
+    <p>Masukkan password untuk membuka dashboard pelacakan.</p>
+    <input id="pw" type="password" placeholder="Password" style="width:100%;padding:8px;margin-bottom:8px"/>
+    <button id="btn" style="width:100%;padding:8px">Masuk</button>
+    <p id="msg" style="color:red"></p>
+  </div>
+<script>
+document.getElementById('btn').addEventListener('click', ()=>{
+  const pw = document.getElementById('pw').value;
+  fetch('/login',{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{password:pw}})})
+    .then(r=>r.json())
+    .then(j=>{ if(j.ok) location.href = '/index.html'; else document.getElementById('msg').textContent = 'Password salah'; })
+    .catch(()=>document.getElementById('msg').textContent = 'Terjadi kesalahan');
+});
+</script>
+</body>
+</html>
